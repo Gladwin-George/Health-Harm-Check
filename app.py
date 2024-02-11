@@ -43,16 +43,16 @@ migrate = Migrate(app, db)
 #mailing
 
 #email
-EMAIL_ID = os.getenv('EMAIL')#os.environ.get("EMAIL_ID")
-EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')#os.environ.get("EMAIL_PASSWORD")
+EMAIL_ID = os.getenv('EMAIL')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = EMAIL_ID#'gladwinfiverr@gmail.com'
-app.config['MAIL_PASSWORD'] = EMAIL_PASSWORD#'xfln ajez ektr gjru'
-app.config['MAIL_DEFAULT_SENDER'] = EMAIL_ID#'gladwinfiverr@gmail.com'
+app.config['MAIL_USERNAME'] = EMAIL_ID
+app.config['MAIL_PASSWORD'] = EMAIL_PASSWORD
+app.config['MAIL_DEFAULT_SENDER'] = EMAIL_ID
 
 mail = Mail(app)
 

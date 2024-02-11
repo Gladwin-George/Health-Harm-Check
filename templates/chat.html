@@ -1,0 +1,187 @@
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!DOCTYPE html>
+<html> 
+	<head>
+		<title>Medical Assistant</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"/>
+	</head>
+	
+	
+	<body>
+		<div class="container-fluid h-100">
+			<div class="row justify-content-center h-100">
+		        <!-- Left column for blocks -->
+				<div class="container">
+					<div class="container-1">
+						<h3>Upload Image to find out the harmful ingredient in your product</h3>
+						<form action="/harmful" method="post" enctype="multipart/form-data">
+							<input class="btn_clr1" type="file" name="file" accept=".jpg, .jpeg, .png">
+							<br>
+							<br>
+							<input class="btn_clr2" type="submit" value="Click to Analyze the ingredients">
+						</form>
+			
+						{% if error %}
+						<p class="error">{{ error }}</p>
+						{% endif %}
+					</div>
+					
+					<div class="container-2">
+						<h3>Harmful Ingredients Detected:</h3>
+						<div class="scrollable-list">
+							<ul id="harmful-ingredients-list">
+								{% if harmful_ingredients %}
+									{% for ingredient, description in harmful_ingredients %}
+										<li>{{ ingredient }} - {{ description }}</li>
+									{% endfor %}
+								{% endif %}
+							</ul>
+						</div>	
+					</div>
+					
+				</div>
+
+        		<!-- Chat interface on the right side -->
+					<div class="card">
+						<div class="card-header msg_head">
+							<div class="d-flex bd-highlight">
+								<div class="img_cont">
+									<img src="https://media.istockphoto.com/id/1359585151/photo/cute-blue-robot-giving-thumbs-up-3d.jpg?s=612x612&w=0&k=20&c=xAekoyOf_aboQimdNlGawCGT6uS-N8ELK-PLzMhNvdw=" class="rounded-circle user_img">
+									<span class="online_icon"></span>
+								</div>
+								<div class="user_info">
+									<span>Medical Assistant</span>
+									<p>Ask me anything!</p>
+								</div>
+							</div>
+						</div>
+						<div id="messageFormeight" class="card-body msg_card_body">
+							
+							
+						</div>
+						<div class="card-footer">
+							<form id="messageArea" class="input-group" method="POST">
+                                <input type="text" id="text" name="msg" placeholder="Type your message..." autocomplete="off" class="form-control type_msg" required/>
+								<div class="input-group-append">
+									<button type="submit" id="send" class="input-group-text send_btn"><i class="fas fa-location-arrow"></i></button>
+								</div>
+							</form>
+							<button type="button" id="sendEmail">
+								<i class="fas fa-envelope" style="vertical-align: middle; margin-right: 5px;"></i>
+								<span class="emailtext" style="vertical-align: middle;">Confirm with a Professional certified doctor</span></button>
+								<!-- <span id="emailConfirmationMessage" style="color: #28a745; font-size: 14px;"></span> -->
+								<div id="emailConfirmationContainer" style="text-align: center;">
+									<span id="emailConfirmationMessage" style="color: #28a745; font-size: 14px;"></span>
+								</div>
+						</div>
+					</div>
+			</div>
+		</div>
+		
+		<script>
+			$(document).ready(function() {
+				$("#messageArea").on("submit", function(event) {
+					const date = new Date();
+					const hour = date.getHours();
+					const minute = date.getMinutes();
+					const str_time = hour+":"+minute;
+					var rawText = $("#text").val();
+
+					var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + rawText + '<span class="msg_time_send">'+ str_time + '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
+					
+					$("#text").val("");
+					$("#messageFormeight").append(userHtml);
+
+					$.ajax({
+						data: {
+							msg: rawText,	
+						},
+						type: "POST",
+						url: "/get",
+					}).done(function(data) {
+						var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://www.prdistribution.com/spirit/uploads/pressreleases/2019/newsreleases/d83341deb75c4c4f6b113f27b1e42cd8-chatbot-florence-already-helps-thousands-of-patients-to-remember-their-medication.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' + data + '<span class="msg_time">' + str_time + '</span></div></div>';
+						$("#messageFormeight").append($.parseHTML(botHtml));
+					});
+					event.preventDefault();
+				});
+			});
+
+			//////harmful ingredients//////
+			$(document).ready(function(){
+            $("form").on("submit", function(event){
+                event.preventDefault();
+        
+                var formData = new FormData(this);
+        
+                $.ajax({
+                    url: '/harmful',
+                    type: 'POST',
+                    data: formData,
+                    success: function(data){
+                        // Clear any existing error message and harmful ingredients
+                        $('.error').text('');
+                        $('#harmful-ingredients-list').empty();
+        
+                        // Display the error message, if any
+                        if (data.error) {
+                            $('.error').text(data.error);
+                        }
+        
+                        // Display the harmful ingredients, if any
+                        if (data.harmful_ingredients.length > 0) {
+                            $.each(data.harmful_ingredients, function(i, ingredient) {
+                                $('#harmful-ingredients-list').append('<li>' + ingredient[0] + ' - ' + ingredient[1] + '</li>');
+                            });
+                        }
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+        });
+			//////harmful ingredients//////
+
+//////////email////////////		
+
+			$(document).ready(function() {
+					// Existing code...
+
+					$("#sendEmail").on("click", function() {
+						// Gather conversation data
+						const conversationData = $("#messageFormeight").text();
+
+						// Call a function to send the data via email
+						sendEmail(conversationData);
+					});
+
+					function sendEmail(data) {
+						// Use AJAX or another method to send the data to the server
+						$.ajax({
+							data: {
+								conversationData: data,
+							},
+							type: "POST",
+							url: "/send_email",  // Create a new route for handling email sending
+						}).done(function(response) {
+							if (response.success) {
+								$("#emailConfirmationMessage").text("Email sent successfully!");
+							} else {
+								$("#emailConfirmationMessage").text("Failed to send email. Please try again later.");
+							}
+						}).fail(function() {
+							$("#emailConfirmationMessage").text("Failed to send email. Please try again later.");
+						});
+					}
+				});
+//////////email////////////		
+
+		</script>
+    </body>
+</html>

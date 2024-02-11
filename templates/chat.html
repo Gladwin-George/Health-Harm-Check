@@ -35,6 +35,7 @@
 					<div class="container-2">
 						<h3>Harmful Ingredients Detected:</h3>
 						<div class="scrollable-list">
+							<div id="loading-message" style="display: none;">Analyzing image, please wait <span>.</span><span>.</span><span>.</span><span>.</span></div>
 							<ul id="harmful-ingredients-list">
 								{% if harmful_ingredients %}
 									{% for ingredient, description in harmful_ingredients %}
@@ -116,6 +117,9 @@
 			$(document).ready(function(){
             $("form").on("submit", function(event){
                 event.preventDefault();
+
+				// Show the loading message
+				$("#loading-message").show();
         
                 var formData = new FormData(this);
         
@@ -124,6 +128,8 @@
                     type: 'POST',
                     data: formData,
                     success: function(data){
+						// Hide the loading message
+						$("#loading-message").hide();
                         // Clear any existing error message and harmful ingredients
                         $('.error').text('');
                         $('#harmful-ingredients-list').empty();

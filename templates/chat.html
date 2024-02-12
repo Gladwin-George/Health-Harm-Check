@@ -20,7 +20,7 @@
 				<div class="container">
 					<div class="container-1">
 						<h3>Upload Image to find out the harmful ingredient in your product</h3>
-						<form action="/harmful" method="post" enctype="multipart/form-data">
+						<form id="analyze-form" action="/harmful" method="post" enctype="multipart/form-data">
 							<input class="btn_clr1" type="file" name="file" accept=".jpg, .jpeg, .png">
 							<br>
 							<br>
@@ -115,7 +115,7 @@
 
 			//////harmful ingredients//////
 			$(document).ready(function(){
-            $("form").on("submit", function(event){
+            $("#analyze-form").on("submit", function(event){
                 event.preventDefault();
 
 				// Show the loading message

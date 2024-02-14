@@ -47,7 +47,6 @@ qa_chain = RetrievalQA.from_chain_type(
     model,
     retriever=vector_index,
     return_source_documents=True
-
 )
 
 
